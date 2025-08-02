@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida Giornaliera a Parigi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            scroll-behavior: smooth;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+            padding: 24px;
+            transition: transform 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .day-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 8px;
+        }
+        .time-slot {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        .activity-item {
+            margin-bottom: 12px;
+        }
+        .activity-name {
+            font-weight: 600;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .activity-name span:first-child {
+            flex-grow: 1;
+            margin-right: 8px;
+        }
+        .activity-description {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+        .note {
+            background-color: #e2e8f0;
+            border-left: 4px solid #4299e1;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #2c5282;
+        }
+        .cost-info {
+            background-color: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #234e52;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        ul ul {
+            list-style-type: circle;
+            margin-left: 20px;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 16px 0;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+        }
+        .sticky-header.transparent {
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: none;
+            backdrop-filter: blur(5px);
+            padding: 12px 0;
+        }
+        .nav-link {
+            padding: 4px 8px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease-in-out;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.8rem;
+            border: 1px solid #cbd5e0;
+        }
+        .nav-link:hover {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4299e1;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            z-index: 99;
+        }
+        .scroll-to-top:hover {
+            background-color: #2b6cb0;
+        }
+        .search-bar-container {
+            margin-bottom: 20px;
+            padding: 12px;
+            background-color: #f7fafc;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: none;
+            transition: padding 0.3s ease;
+        }
+        .sticky-header.transparent + .container .search-bar-container {
+            padding: 6px 12px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .search-input:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+        .tips-section {
+            background-color: #d1e7dd;
+            border-left: 5px solid #28a745;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .tips-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e7e34;
+            margin-bottom: 10px;
+        }
+        .activity-buttons-group {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .small-action-button {
+            background-color: #667eea;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            gap: 1px;
+            border: none;
+            text-decoration: none;
+        }
+        .small-action-button:hover {
+            background-color: #5a67d8;
+        }
+        .dynamic-section {
+            display: none;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 24px;
+            padding: 24px;
+        }
+        .restaurant-card, .museum-item, .data-card, .dish-card {
+            background-color: #f7fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+        .restaurant-name, .museum-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+        .restaurant-description, .museum-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .restaurant-dishes, .museum-details {
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .restaurant-link {
+            color: #4299e1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .restaurant-link:hover {
+            text-decoration: underline;
+        }
+        .main-action-button {
+            background-color: #48bb78;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+        .main-action-button:hover {
+            background-color: #38a169;
+            transform: translateX(2px);
+        }
+        .map-iframe-container {
+            width: 100%;
+            padding-bottom: 75%;
+            position: relative;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .map-iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+        }
+        .pmp-indicator {
+            background-color: #f6ad55;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .ticket-button {
+            background-color: #38b2ac;
+        }
+        .ticket-button:hover {
+            background-color: #2c7a7b;
+        }
+        .ticket-status {
+            background-color: #f0fff4;
+            border-left: 4px solid #48bb78;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #2f855a;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ticket-status.visible {
+            display: flex;
+        }
+        .ticket-status a {
+            color: #2b6cb0;
+            font-weight: 600;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .ticket-status a:hover {
+            text-decoration: underline;
+        }
+        /* --- Hamburger Menu Styles --- */
+        #hamburgerBtn {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 50;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            background-color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+        }
+        #sideMenu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 60;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+        }
+        #sideMenu.menu-open {
+            transform: translateX(0);
+        }
+        #menuOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 55;
+            display: none;
+        }
+        #menuOverlay.visible {
+            display: block;
+        }
+        #closeMenuBtn {
+            font-size: 2rem;
+            line-height: 1;
+            color: #718096;
+        }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Hamburger Menu Button -->
+    <button id="hamburgerBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Side Menu Panel -->
+    <div id="sideMenu">
+        <div class="p-4 flex justify-between items-center border-b">
+            <h2 class="text-lg font-bold text-gray-800">Menu Principale</h2>
+            <button id="closeMenuBtn">&times;</button>
+        </div>
+        <div id="menuContent" class="p-4">
+            <button id="showMyDataBtn" class="main-action-button">I Miei Dati 📄</button>
+            <button id="showDishesBtn" class="main-action-button">Piatti da Assaggiare 🍽️</button>
+            <button id="showRestaurantsBtn" class="main-action-button">Ristoranti 🍽️</button>
+            <button id="showMapBtn" class="main-action-button">Mappa Itinerario 🗺️</button>
+            <button id="showMuseumPassBtn" class="main-action-button">Paris Museum Pass 🎟️</button>
+            <button id="showPreparationBtn" class="main-action-button">Preparazione 🎒</button>
+            <button id="showTransportBtn" class="main-action-button">Trasporti 🚇</button>
+            <button id="showMedicationBtn" class="main-action-button">Farmaci 💊</button>
+            <button id="toggleSearchBtn" class="main-action-button">Cerca Attività 🔍</button>
+        </div>
+    </div>
+
+    <!-- Overlay for Side Menu -->
+    <div id="menuOverlay"></div>
+
+    <div class="sticky-header" id="stickyHeader">
+        <div class="container flex flex-wrap justify-center gap-x-2 gap-y-1">
+            <a href="#day-6" class="nav-link">Giorno 6</a>
+            <a href="#day-7" class="nav-link">Giorno 7</a>
+            <a href="#day-8" class="nav-link">Giorno 8</a>
+            <a href="#day-9" class="nav-link">Giorno 9</a>
+            <a href="#day-10" class="nav-link">Giorno 10</a>
+            <a href="#day-11" class="nav-link">Giorno 11</a>
+            <a href="#day-12" class="nav-link">Giorno 12</a>
+            <a href="#day-13" class="nav-link">Giorno 13</a>
+            <a href="#day-14" class="nav-link">Giorno 14</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="text-center mb-8 pt-6">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Parigi e oltre</h1>
+            <p class="text-lg text-gray-600">La guida definitiva di Parigi a cura di Mirko Marzano.</p>
+            <p class="text-md text-gray-500">dal 6 al 14 agosto 2025</p>
+        </header>
+
+        <div class="tips-section">
+            <h3>Consigli Generali per il Tuo Viaggio a Parigi:</h3>
+            <ul>
+                <li><strong>Paris Museum Pass:</strong> Questo itinerario raggruppa le attrazioni del PMP nei giorni 7, 8, 9 e 10. Considera l'acquisto di un pass da 4 giorni da attivare il 7 agosto.</li>
+                <li><strong>Prenota in anticipo:</strong> Musei, monumenti e spettacoli serali, specialmente in alta stagione.</li>
+                <li><strong>Usa la metro:</strong> È il modo più rapido ed efficiente per spostarsi tra le zone.</li>
+                <li><strong>Scarpe comode:</strong> Camminerai molto, quindi scegli calzature confortevoli.</li>
+                <li><strong>Flessibilità:</strong> Questo è un itinerario suggerito, sentiti libero di modificarlo in base ai tuoi interessi e alla tua energia!</li>
+            </ul>
+        </div>
+
+        <div class="search-bar-container" id="globalSearchBar">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cerca attività, luoghi o ristoranti...">
+        </div>
+
+        <!-- Dynamic Sections -->
+        <div id="myDataSection" class="dynamic-section">
+            <h2 class="day-title">I Miei Dati di Viaggio 📄</h2>
+            
+            <!-- Flight Details -->
+            <div class="data-card mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">✈️ Dettagli Volo</h3>
+                <p class="text-gray-700"><strong>Codice di conferma:</strong> <span class="font-mono bg-gray-200 px-2 py-1 rounded">LN867A</span></p>
+                <div class="grid md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <p class="font-semibold text-lg">Andata</p>
+                        <p><strong>Volo:</strong> W46061</p>
+                        <p><strong>Da:</strong> Roma Fiumicino (FCO)</p>
+                        <p><strong>A:</strong> Parigi Orly (ORY)</p>
+                        <p><strong>Data:</strong> 6 Agosto</p>
+                        <p><strong>Orari:</strong> 06:40 ➔ 08:55 (2h 15m)</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-lg">Ritorno</p>
+                        <p><strong>Volo:</strong> W46062</p>
+                        <p><strong>Da:</strong> Parigi Orly (ORY)</p>
+                        <p><strong>A:</strong> Roma Fiumicino (FCO)</p>
+                        <p><strong>Data:</strong> 14 Agosto</p>
+                        <p><strong>Orari:</strong> 09:05 ➔ 11:10 (2h 5m)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Details -->
+            <div class="data-card mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-3">🏨 Dettagli Alloggio</h3>
+                <p class="text-gray-600 italic">Inserisci qui i dettagli del tuo alloggio.</p>
+                <p class="mt-2"><strong>Nome Hotel:</strong> _________________________</p>
+                <p><strong>Indirizzo:</strong> _________________________</p>
+                <p><strong>Date:</strong> dal 6 al 14 Agosto</p>
+            </div>
+            <button id="hideMyDataBtn" class="main-action-button mt-6 w-full">Chiudi</button>
+        </div>
+
+        <div id="dishesSection" class="dynamic-section">
+            <h2 class="day-title">Piatti Tipici da Assaggiare 🍽️</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Soupe_%C3%A0_l%27oignon_gratin%C3%A9e.jpg/640px-Soupe_%C3%A0_l%27oignon_gratin%C3%A9e.jpg" alt="Zuppa di cipolle gratinata" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/EFE8D8/54452D?text=Soupe+à+l\'oignon';"><p class="mt-2 font-semibold">Soupe à l'oignon</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Coq_au_vin_in_serving_dish.jpg/640px-Coq_au_vin_in_serving_dish.jpg" alt="Gallo al vino" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/C7B3A5/4B3D32?text=Coq+au+vin';"><p class="mt-2 font-semibold">Coq au vin</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/B%C5%93uf_bourguignon_2.jpg/640px-B%C5%93uf_bourguignon_2.jpg" alt="Manzo alla bourguignonne" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/D6C0B5/6B4F41?text=Boeuf+bourguignon';"><p class="mt-2 font-semibold">Boeuf bourguignon</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Escargots_de_Bourgogne.jpg/640px-Escargots_de_Bourgogne.jpg" alt="Lumache alla bourguignonne" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/E8E4D9/5C5B57?text=Escargots';"><p class="mt-2 font-semibold">Escargots</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Quiche_lorraine_2.jpg/640px-Quiche_lorraine_2.jpg" alt="Quiche Lorraine" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/F5E4A8/8C6D3B?text=Quiche+Lorraine';"><p class="mt-2 font-semibold">Quiche Lorraine</p></div>
+               <div class="dish-card text-center"><img src="https://images.unsplash.com/photo-1584278858536-52522207b164?q=80&w=600&auto=format&fit=crop" alt="Crêpes e Galettes" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/E0D6C3/6F5E46?text=Crêpes';"><p class="mt-2 font-semibold">Crêpes & Galettes</p></div>
+               <div class="dish-card text-center"><img src="https://images.pexels.com/photos/3218467/pexels-photo-3218467.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Macarons" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/F7E0E5/C18A99?text=Macarons';"><p class="mt-2 font-semibold">Macarons</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Croque-monsieur_at_the_Caf%C3%A9_de_la_Paix%2C_Paris_1.jpg/640px-Croque-monsieur_at_the_Caf%C3%A9_de_la_Paix%2C_Paris_1.jpg" alt="Croque Monsieur" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/F2D7A5/8A6534?text=Croque+Monsieur';"><p class="mt-2 font-semibold">Croque Monsieur</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Steak_frites_in_Paris.jpg/640px-Steak_frites_in_Paris.jpg" alt="Bistecca e patatine fritte" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/DDCAB5/7A5C43?text=Steak+Frites';"><p class="mt-2 font-semibold">Steak Frites</p></div>
+               <div class="dish-card text-center"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Cr%C3%A8me_br%C3%BBl%C3%A9e_at_the_Marriott_Hotel_in_Sopron.jpg/640px-Cr%C3%A8me_br%C3%BBl%C3%A9e_at_the_Marriott_Hotel_in_Sopron.jpg" alt="Crème brûlée" class="rounded-lg shadow-md mx-auto aspect-square object-cover" onerror="this.onerror=null;this.src='https://placehold.co/200x200/F9E6C9/AF7D3B?text=Crème+brûlée';"><p class="mt-2 font-semibold">Crème brûlée</p></div>
+            </div>
+            <button id="hideDishesBtn" class="main-action-button mt-6 w-full">Chiudi</button>
+        </div>
+
+        <div id="mapSection" class="dynamic-section">
+            <h2 class="day-title">Mappa del Tuo Itinerario 🗺️</h2>
+            <p class="text-gray-600 mb-4">Esplora tutte le tappe del tuo viaggio su questa mappa interattiva.</p>
+            <div class="map-iframe-container">
+                <iframe src="https://www.google.com/maps/d/embed?mid=1Z5pw9ZpD98HhfMfQ6950_azVndqNsAk&ehbc=2E312F"></iframe>
+            </div>
+            <button id="hideMapBtn" class="main-action-button mt-6 w-full">Nascondi Mappa</button>
+        </div>
+
+        <div id="restaurantsSection" class="dynamic-section">
+            <h2 class="day-title">Ristoranti Consigliati a Parigi</h2>
+            <p class="text-gray-600 mb-4">Usa la barra di ricerca in alto per filtrare i ristoranti.</p>
+            <div id="restaurantList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <button id="hideRestaurantsBtn" class="main-action-button mt-6 w-full">Nascondi Ristoranti</button>
+        </div>
+
+        <div id="museumPassSection" class="dynamic-section">
+            <h2 class="day-title">Paris Museum Pass 🎟️</h2>
+            <p class="text-gray-600 mb-4">La Paris Museum Pass offre accesso gratuito e prioritario a oltre 50 musei e monumenti di Parigi e dintorni. Disponibile per 2, 4 o 6 giorni consecutivi.</p>
+            <p class="text-sm text-gray-600 mb-6">Costo indicativo per 4 giorni: circa 62€.</p>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Musei nel tuo itinerario inclusi nel PMP:</h3>
+            <div id="itineraryMuseumsPMPList" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Altri musei a Parigi e dintorni inclusi nel PMP (non nel tuo itinerario principale):</h3>
+            <p class="text-gray-600 mb-4 text-sm italic">Nota: Questa lista include musei comunemente coperti dal PMP, ma la disponibilità esatta può variare. Controlla sempre il sito ufficiale del Paris Museum Pass per la lista più aggiornata.</p>
+            <div id="otherMuseumsPMPList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            <button id="hideMuseumPassBtn" class="main-action-button mt-6 w-full">Nascondi Paris Museum Pass</button>
+        </div>
+
+        <div id="preparationSection" class="dynamic-section">
+            <h2 class="day-title">Preparazione: Cosa Mettere in Valigia 🎒</h2>
+            <p class="text-gray-600 mb-4">Ecco 20 cose essenziali da non dimenticare per il tuo viaggio a Parigi:</p>
+            <ul class="list-disc list-inside text-gray-700">
+                <li>Passaporto/Carta d'identità e copie digitali</li>
+                <li>Biglietti aerei/treno e prenotazioni hotel</li>
+                <li>Adattatore universale per prese elettriche</li>
+                <li>Power bank per dispositivi elettronici</li>
+                <li>Scarpe comode per camminare (almeno due paia)</li>
+                <li>Abbigliamento a strati (il tempo può cambiare rapidamente)</li>
+                <li>Ombrello compatto o impermeabile leggero</li>
+                <li>Farmaci personali e kit di primo socorso base</li>
+                <li>Crema solare e occhiali da sole</li>
+                <li>Piccolo zaino o borsa a tracolla antifurto</li>
+                <li>Borracca riutilizzabile (ci sono fontanelle d'acqua)</li>
+                <li>Caricabatterie per tutti i dispositivi</li>
+                <li>Fotocamera e schede di memoria extra</li>
+                <li>Guida turistica o app offline di Parigi</li>
+                <li>Dizionario tascabile francese o app di traduzione</li>
+                <li>Piccoli snack per le pause</li>
+                <li>Contanti (pochi) e carte di credito/debito</li>
+                <li>Asciugamano in microfibra (per emergenze)</li>
+                <li>Cuscino da viaggio (se viaggi in treno/aereo)</li>
+                <li>Una penna e un piccolo taccuino</li>
+            </ul>
+            <button id="hidePreparationBtn" class="main-action-button mt-6 w-full">Nascondi Preparazione</button>
+        </div>
+
+        <div id="medicationSection" class="dynamic-section">
+            <h2 class="day-title">Farmaci Comuni e Principi Attivi 💊</h2>
+            <p class="text-gray-600 mb-4">Ecco una lista di farmaci comuni e principi attivi, con i nomi francesi e le indicazioni, utili in caso di necessità:</p>
+            <div id="medicationList" class="grid grid-cols-1 gap-4">
+                <div class="medication-item"><p class="medication-name">Paracétamol (fr.) / Paracetamolo (it.)</p><p class="medication-details">**Casi d'uso:** Febbre, dolori (mal di testa, dolori mestruali, dolori articolari e muscolari). **Farmaco italiano comune:** Tachipirina, Efferalgan.</p></div>
+                <div class="medication-item"><p class="medication-name">Ibuprofène (fr.) / Ibuprofene (it.)</p><p class="medication-details">**Casi d'uso:** Dolori (mal di testa, dolori muscolari, dolori articolari, mal di denti), infiammazioni, febbre. **Farmaco italiano comune:** Moment, Brufen.</p></div>
+                <div class="medication-item"><p class="medication-name">Acide acétylsalicylique (fr.) / Acido Acetilsalicilico (it.)</p><p class="medication-details">**Casi d'uso:** Febbre, dolori (mal di testa, dolori muscolari), sintomi influenzali. **Farmaco italiano comune:** Aspirina.</p></div>
+                <div class="medication-item"><p class="medication-name">Chlorphénamine (fr.) / Clorfenamina (it.)</p><p class="medication-details">**Casi d'uso:** Sintomi di raffreddore e influenza (starnuti, naso che cola), allergie. **Farmaco italiano comune:** (Spesso in combinazione, es. Actigrip).</p></div>
+                <div class="medication-item"><p class="medication-name">Lopéramide (fr.) / Loperamide (it.)</p><p class="medication-details">**Casi d'uso:** Diarrea acuta. **Farmaco italiano comune:** Imodium.</p></div>
+                <div class="medication-item"><p class="medication-name">Diosmectite (fr.) / Diosmectite (it.)</p><p class="medication-details">**Casi d'uso:** Diarrea acuta e cronica, bruciore di stomaco. **Farmaco italiano comune:** Diosmectal.</p></div>
+                <div class="medication-item"><p class="medication-name">Antihistaminique (fr.) / Antistaminico (it.)</p><p class="medication-details">**Casi d'uso:** Reazioni allergiche (orticaria, rinite allergica, prurito). **Farmaco italiano comune:** Zirtec, Fexallegra.</p></div>
+                <div class="medication-item"><p class="medication-name">Pastilles pour la gorge (fr.) / Pastiglie per la gola (it.)</p><p class="medication-details">**Casi d'uso:** Mal di gola, irritazione della gola. **Farmaco italiano comune:** Benagol, Tantum Verde.</p></div>
+                <div class="medication-item"><p class="medication-name">Spray nasal (fr.) / Spray nasale (it.)</p><p class="medication-details">**Casi d'uso:** Congestione nasale, raffreddore. **Farmaco italiano comune:** Vicks Sinex, Rinazina.</p></div>
+                <div class="medication-item"><p class="medication-name">Crème pour brûlures/piqûres (fr.) / Crema per scottature/punture (it.)</p><p class="medication-details">**Casi d'uso:** Scottature lievi, punture di insetti, irritazioni cutanee. **Farmaco italiano comune:** Foille, Gentalyn Beta (per punture infiammate).</p></div>
+            </div>
+            <button id="hideMedicationBtn" class="main-action-button mt-6 w-full">Nascondi Farmaci</button>
+        </div>
+
+        <div id="transportSection" class="dynamic-section">
+            <h2 class="day-title">Trasporti a Parigi 🚇</h2>
+            <p class="text-gray-600 mb-4">Ecco le principali opzioni di trasporto e abbonamenti.</p>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">Pass e Abbonamenti per i Trasporti:</h3>
+            <div class="mb-6"><p class="font-semibold">Paris Visite Pass:</p><p class="activity-description">Ideale per i turisti. Permette viaggi illimitati su metro, RER, bus, tram e funicolare di Montmartre. Disponibile per 1, 2, 3 o 5 giorni e per diverse zone (1-3 o 1-5). Include sconti su alcune attrazioni.</p><p class="text-sm text-gray-600">Costo indicativo per 5 giorni, zone 1-3: circa 40-45€.</p></div>
+            <div class="mb-6"><p class="font-semibold">Navigo Découverte:</p><p class="activity-description">Più economico per soggiorni più lunghi (settimanale o mensile), ma valido da lunedì a domenica. Richiede una foto tessera e una piccola tassa per la tessera stessa.</p><p class="text-sm text-gray-600">Costo indicativo settimanale zone 1-5: circa 30-35€ + 5€ per la tessera.</p></div>
+            <div class="mb-6"><p class="font-semibold">Biglietti T+:</p><p class="activity-description">Biglietti singoli per metro, bus, tram. Convenienti per pochi spostamenti. È possibile acquistare un carnet da 10 biglietti (più economico).</p><p class="text-sm text-gray-600">Costo singolo: circa 2.15€; carnet da 10: circa 17.35€.</p></div>
+            <button id="hideTransportBtn" class="main-action-button mt-6 w-full">Nascondi Trasporti</button>
+        </div>
+
+        <!-- Itinerary Cards -->
+        <div class="card" id="day-6">
+            <h2 class="day-title">6 Agosto (Mercoledì) - Arrivo e Primo Contatto</h2>
+            <div class="time-slot">Mattina (9:00 - 13:00)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Arrivo, Trasferimento e Check-in</span></p>
+                <p class="activity-description">Arrivo a Parigi (previsto per le 9:00), trasferimento in hotel e sistemazione dei bagagli.</p>
+            </div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Prima Esplorazione: Quartiere Latino</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Quartiere_Latino" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a></span></p>
+                <p class="activity-description">Dopo esserti sistemato, immergiti subito nell'atmosfera parigina con una passeggiata nel vivace Quartiere Latino. Visita la piazza e la fontana di Saint-Michel, curiosa tra le bancarelle dei *bouquinistes* lungo la Senna e ammira dall'esterno la storica Università della Sorbona.</p>
+            </div>
+            <div class="time-slot">Pranzo (13:00 - 14:00)</div>
+            <div class="activity-item">
+                 <p class="activity-name"><span>Pranzo nel Quartiere Latino</span></p>
+                 <p class="activity-description">Scegli una delle tante crêperie o un bistrot tradizionale per un pranzo informale e delizioso.</p>
+            </div>
+            <div class="time-slot">Pomeriggio (14:00 - 18:00)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Relax ai Jardin du Luxembourg</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Giardini_del_Lussemburgo" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a></span></p>
+                <p class="activity-description">Rilassati nei magnifici giardini voluti da Maria de' Medici, ammira il palazzo, le fontane e l'atmosfera vibrante.</p>
+            </div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Passeggiata a Saint-Germain-des-Prés</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Saint-Germain-des-Prés" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a></span></p>
+                <p class="activity-description">Esplora il quartiere chic famoso per le gallerie d'arte e i suoi caffè storici, come Les Deux Magots e Café de Flore, un tempo ritrovo di intellettuali e artisti.</p>
+            </div>
+            <div class="time-slot">Sera</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Tour Eiffel e Champ de Mars</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Torre_Eiffel" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.toureiffel.paris/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Tour-Eiffel">Carica 🎟️</button></span></p>
+                <p class="activity-description">Prendi la metro verso la Tour Eiffel per vederla illuminarsi. Goditi lo spettacolo di luci (scintilla per 5 minuti ogni ora) dai giardini del Champ de Mars. Se hai ancora energie, valuta una crociera sulla Senna.</p>
+                <div class="ticket-status" id="ticket-status-Tour-Eiffel"></div><input type="file" id="ticket-input-Tour-Eiffel" accept="image/*,application/pdf" style="display: none;">
+            </div>
+        </div>
+
+        <div class="card" id="day-7">
+            <h2 class="day-title">7 Agosto (Giovedì) - PMP Giorno 1: Il Louvre</h2>
+            <div class="note"><p><strong>Oggi inizia il tuo Paris Museum Pass di 4 giorni.</strong> Questa giornata è interamente dedicata al Louvre come da te prenotato.</p></div>
+            <div class="time-slot">Intera Giornata</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Museo del Louvre</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Museo_del_Louvre" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.louvre.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Louvre">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">Dedica la maggior parte della giornata al museo più famoso del mondo. Concentrati sulle ali che ti interessano di più (es. pittura italiana, antichità egizie, scultura francese). Non perdere i capolavori: "La Gioconda", "La Venere di Milo", "La Nike di Samotracia", "Amore e Psiche".</p>
+                <div class="ticket-status" id="ticket-status-Louvre"></div><input type="file" id="ticket-input-Louvre" accept="image/*,application/pdf" style="display: none;">
+            </div>
+            <div class="time-slot">Sera</div>
+             <div class="activity-item">
+                <p class="activity-name"><span>Cena e Relax</span></p>
+                <p class="activity-description">Dopo una giornata così intensa, goditi una cena rilassante in un bistrot vicino al tuo alloggio o nel quartiere di Saint-Germain-des-Prés.</p>
+            </div>
+        </div>
+
+        <div class="card" id="day-8">
+            <h2 class="day-title">8 Agosto (Venerdì) - PMP Giorno 2: Impressionisti e Scultura</h2>
+            <div class="time-slot">Mattina (9:30-13:30)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Musée d'Orsay</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Museo_d%27Orsay" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.musee-orsay.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Musee-d-Orsay">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">Esplora la più grande collezione di capolavori impressionisti e post-impressionisti in una magnifica ex stazione ferroviaria. Ammira Manet, Monet, Degas, Renoir, Cézanne, Van Gogh.</p>
+                <div class="ticket-status" id="ticket-status-Musee-d-Orsay"></div><input type="file" id="ticket-input-Musee-d-Orsay" accept="image/*,application/pdf" style="display: none;">
+            </div>
+            <div class="time-slot">Pranzo (13:30-14:30)</div>
+            <p class="activity-description">Pranza in un locale vicino al museo, sulla Rive Gauche.</p>
+            <div class="time-slot">Pomeriggio (14:30-18:00)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Musée de l'Orangerie</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Museo_dell%27Orangerie" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.musee-orangerie.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Musee-de-l-Orangerie">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">Attraversa il ponte e immergiti nelle monumentali "Ninfee" di Monet. Un'esperienza visiva unica e rilassante.</p>
+                <div class="ticket-status" id="ticket-status-Musee-de-l-Orangerie"></div><input type="file" id="ticket-input-Musee-de-l-Orangerie" accept="image/*,application/pdf" style="display: none;">
+            </div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Musée Rodin</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Museo_Rodin" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.musee-rodin.fr/en" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Musee-Rodin">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">A pochi passi, visita questo museo più tranquillo. Ammira "Il Pensatore" e "Il Bacio" nel magnifico giardino della villa che ospita il museo.</p>
+                <div class="ticket-status" id="ticket-status-Musee-Rodin"></div><input type="file" id="ticket-input-Musee-Rodin" accept="image/*,application/pdf" style="display: none;">
+            </div>
+        </div>
+
+        <div class="card" id="day-9">
+            <h2 class="day-title">9 Agosto (Sabato) - PMP Giorno 3: Cuore Storico e Arte Moderna</h2>
+            <div class="note"><p><strong>Giornata intensa ma geograficamente ottimizzata.</strong> Indossa scarpe comode!</p></div>
+            <div class="time-slot">Mattina (9:30-13:00)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Île de la Cité: Sainte-Chapelle & Conciergerie</span></p>
+                <p class="activity-description">Inizia dall'isola nel cuore di Parigi. Visita la <strong>Sainte-Chapelle</strong> per le sue vetrate mozzafiato e poi la <strong>Conciergerie</strong>, l'ex prigione della Rivoluzione. Ammira gli esterni di <strong>Notre Dame</strong> in ricostruzione.</p>
+                <div class="activity-item mt-2">
+                    <p class="activity-name"><span>Sainte-Chapelle</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Sainte-Chapelle" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.sainte-chapelle.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Sainte-Chapelle">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                    <div class="ticket-status" id="ticket-status-Sainte-Chapelle"></div><input type="file" id="ticket-input-Sainte-Chapelle" accept="image/*,application/pdf" style="display: none;">
+                </div>
+                 <div class="activity-item mt-2">
+                    <p class="activity-name"><span>Conciergerie</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Conciergerie" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.paris-conciergerie.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Conciergerie">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                    <div class="ticket-status" id="ticket-status-Conciergerie"></div><input type="file" id="ticket-input-Conciergerie" accept="image/*,application/pdf" style="display: none;">
+                </div>
+            </div>
+            <div class="time-slot">Pranzo (13:00-14:00)</div>
+            <p class="activity-description">Attraversa la Senna e pranza nel vivace quartiere del Marais.</p>
+            <div class="time-slot">Pomeriggio (14:00-18:30)</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Le Marais: Museo Picasso & Centre Pompidou</span></p>
+                <p class="activity-description">Passeggia per le affascinanti strade del Marais. Visita il <strong>Museo Picasso</strong> e poi dirigiti verso l'iconica struttura del <strong>Centre Pompidou</strong> per ammirare la sua architettura e la collezione d'arte moderna (o anche solo per salire in cima per la vista).</p>
+                 <div class="activity-item mt-2">
+                    <p class="activity-name"><span>Museo Picasso</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Museo_Picasso_(Parigi)" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.museopicassoparis.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Museo-Picasso">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                    <div class="ticket-status" id="ticket-status-Museo-Picasso"></div><input type="file" id="ticket-input-Museo-Picasso" accept="image/*,application/pdf" style="display: none;">
+                </div>
+                 <div class="activity-item mt-2">
+                    <p class="activity-name"><span>Centro Pompidou</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Centre_Pompidou" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.centrepompidou.fr/it/" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Centro-Pompidou">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                    <div class="ticket-status" id="ticket-status-Centro-Pompidou"></div><input type="file" id="ticket-input-Centro-Pompidou" accept="image/*,application/pdf" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="day-10">
+            <h2 class="day-title">10 Agosto (Domenica) - PMP Giorno 4: Versailles e Grandeur</h2>
+            <div class="note"><p><strong>Ultimo giorno del Paris Museum Pass.</strong></p></div>
+            <div class="time-slot">Mattina e Primo Pomeriggio</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Reggia di Versailles</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Reggia_di_Versailles" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.chateauversailles.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Reggia-di-Versailles">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">Prendi la RER C e dedica gran parte della giornata alla Reggia, ai suoi immensi giardini, al Grand Trianon e al Petit Trianon. Controlla se ci sono gli spettacoli delle fontane musicali (biglietto a parte).</p>
+                <div class="ticket-status" id="ticket-status-Reggia-di-Versailles"></div><input type="file" id="ticket-input-Reggia-di-Versailles" accept="image/*,application/pdf" style="display: none;">
+                <div class="note"><p class="font-semibold">Come arrivarci:</p><p>Prendi la RER C (linea gialla) da una stazione centrale (es. Saint-Michel Notre-Dame) fino a Versailles Château Rive Gauche. Il viaggio dura circa 40-50 minuti.</p></div>
+            </div>
+            <div class="time-slot">Tardo Pomeriggio/Sera</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Musée de l'Armée (Les Invalides)</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/H%C3%B4tel_des_Invalides" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.musee-armee.fr/index.html" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Musee-de-l-Armee">Carica 🎟️</button><span class="pmp-indicator">Incluso nel PMP 🎟️</span></span></p>
+                <p class="activity-description">Al rientro da Versailles, scendi alla fermata RER C "Invalides". Concludi il tuo pass visitando il complesso che ospita l'imponente tomba di Napoleone Bonaparte.</p>
+                <div class="ticket-status" id="ticket-status-Musee-de-l-Armee"></div><input type="file" id="ticket-input-Musee-de-l-Armee" accept="image/*,application/pdf" style="display: none;">
+            </div>
+        </div>
+
+        <div class="card" id="day-11">
+            <h2 class="day-title">11 Agosto (Lunedì) - Montmartre e Grandi Viali</h2>
+            <div class="time-slot">Mattina</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Montmartre: Sacro Cuore e Place du Tertre</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Montmartre" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a></span></p>
+                <p class="activity-description">Dedica la mattinata a esplorare il quartiere degli artisti. Visita la <strong>Basilica del Sacro Cuore</strong> (ingresso gratuito) per la sua architettura e la vista sulla città, poi immergiti nell'atmosfera bohémien di <strong>Place du Tertre</strong>, piena di pittori e ritrattisti.</p>
+            </div>
+            <div class="time-slot">Pranzo</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Pranzo a Montmartre</span></p>
+                <p class="activity-description">Scegli uno dei tanti ristoranti caratteristici del quartiere per pranzo.</p>
+            </div>
+            <div class="time-slot">Pomeriggio</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Arco di Trionfo e Champs-Élysées</span></p>
+                <p class="activity-description">Prendi la metro fino a Charles de Gaulle-Étoile. Sali sull'<strong>Arco di Trionfo</strong> per una delle viste più spettacolari di Parigi (biglietto a pagamento). Poi, scendi e percorri a piedi i famosi <strong>Champs-Élysées</strong> fino a Place de la Concorde.</p>
+                <div class="activity-item mt-2">
+                    <p class="activity-name"><span>Arco di Trionfo (Salita)</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Arco_di_Trionfo_(Parigi)" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.paris-arc-de-triomphe.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Arco-di-Trionfo-2">Carica 🎟️</button></span></p>
+                    <div class="ticket-status" id="ticket-status-Arco-di-Trionfo-2"></div><input type="file" id="ticket-input-Arco-di-Trionfo-2" accept="image/*,application/pdf" style="display: none;">
+                </div>
+            </div>
+            <div class="time-slot">Sera</div>
+             <div class="activity-item">
+                <p class="activity-name"><span>Moulin Rouge (Esterni) e Pigalle</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Moulin_Rouge" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.moulinrouge.fr/it/" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a></span></p>
+                <p class="activity-description">Passeggia lungo Boulevard de Clichy per vedere le luci del quartiere a luci rosse e scattare una foto iconica del Moulin Rouge.</p>
+            </div>
+        </div>
+
+        <div class="card" id="day-12">
+            <h2 class="day-title">12 Agosto (Martedì) - Lusso, Opera e Shopping</h2>
+            <div class="time-slot">Mattina</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Pantheon e Quartiere Latino</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Panth%C3%A9on_(Parigi)" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.pantheon.fr/it" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Pantheon">Carica 🎟️</button></span></p>
+                <p class="activity-description">Visita l'interno del maestoso <strong>Pantheon</strong> (biglietto a pagamento) per omaggiare i grandi di Francia. Poi, esplora con più calma il Quartiere Latino e visita la celebre libreria <strong>Shakespeare and Company</strong>.</p>
+                <div class="ticket-status" id="ticket-status-Pantheon"></div><input type="file" id="ticket-input-Pantheon" accept="image/*,application/pdf" style="display: none;">
+            </div>
+            <div class="time-slot">Pomeriggio</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Opéra Garnier e Grandi Magazzini</span><span class="activity-buttons-group"><a href="https://it.wikipedia.org/wiki/Op%C3%A9ra_Garnier" target="_blank" class="small-action-button" title="Wikipedia">Wiki</a><a href="https://www.operadeparis.fr/visites/palais-garnier" target="_blank" class="small-action-button" title="Sito Ufficiale">Sito</a><button class="small-action-button ticket-button" data-activity-id="Opera-Garnier">Carica 🎟️</button></span></p>
+                <p class="activity-description">Visita il sontuoso <strong>Palais Garnier</strong> (Opéra). Poi, ammira la cupola Art Nouveau delle <strong>Galeries Lafayette</strong> e sali sulla loro terrazza gratuita per una splendida vista sulla città.</p>
+                <div class="ticket-status" id="ticket-status-Opera-Garnier"></div><input type="file" id="ticket-input-Opera-Garnier" accept="image/*,application/pdf" style="display: none;">
+            </div>
+        </div>
+
+        <div class="card" id="day-13">
+            <h2 class="day-title">13 Agosto (Mercoledì) - Giorno Libero o di Recupero</h2>
+            <div class="time-slot">Opzioni per la giornata</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Scegli la tua avventura:</span></p>
+                <ul>
+                    <li><strong>Mistero:</strong> Visita le <strong>Catacombe di Parigi</strong> (prenota con largo anticipo, non inclusa nel PMP).</li>
+                    <li><strong>Relax:</strong> Passeggia lungo il <strong>Canal Saint-Martin</strong>.</li>
+                    <li><strong>Cultura:</strong> Visita un museo più piccolo come il <strong>Musée Jacquemart-André</strong> o la <strong>Casa di Victor Hugo</strong>.</li>
+                    <li><strong>Shopping:</strong> Esplora i negozi del Marais o i grandi magazzini.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card" id="day-14">
+            <h2 class="day-title">14 Agosto (Giovedì) - Partenza</h2>
+            <div class="time-slot">Mattina</div>
+            <div class="activity-item">
+                <p class="activity-name"><span>Ultima colazione parigina e partenza</span></p>
+                <p class="activity-description">Goditi un ultimo croissant in una boulangerie locale prima di dirigerti verso l'aeroporto o la stazione.</p>
+            </div>
+        </div>
+
+
+        <footer class="text-center text-gray-500 text-sm mt-8 pb-4">
+            <p>Guida creata per Mirko Marzano. Buon viaggio!</p>
+        </footer>
+    </div>
+
+    <button id="scrollToTopBtn" class="scroll-to-top">↑</button>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA ---
+        const restaurants = [
+            { name: "Le Comptoir du Relais", description: "Un bistrot classico parigino noto per la sua cucina tradizionale francese e l'atmosfera vivace. Molto popolare, spesso con lunghe code.", dishes: "Terrine de campagne, Blanquette de veau, Profiteroles", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719391-Reviews-Le_Comptoir_du_Relais-Paris_Ile_de_France.html" },
+            { name: "Septime", description: "Ristorante stellato Michelin che offre una cucina moderna e creativa con ingredienti di stagione. Richiede prenotazioni con largo anticipo.", dishes: "Menu degustazione a sorpresa con abbinamenti innovativi", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d2008740-Reviews-Septime-Paris_Ile_de_France.html" },
+            { name: "Frenchie", description: "Piccolo e accogliente ristorante con cucina francese contemporanea. Difficile trovare posto, ma vale la pena provare.", dishes: "Piatti a base di prodotti freschi e di stagione, menu che cambia spesso", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d1502444-Reviews-Frenchie-Paris_Ile_de_France.html" },
+            { name: "L'As du Fallafel", description: "Il re del falafel nel quartiere del Marais. Ideale per un pasto veloce, delizioso ed economico.", dishes: "Falafel pita, Shawarma", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719394-Reviews-L_As_du_Fallafel-Paris_Ile_de_France.html" },
+            { name: "Bouillon Chartier", description: "Un'istituzione parigina dal 1896, offre piatti tradizionali francesi a prezzi imbattibili in un ambiente storico e affollato.", dishes: "Bistecca-frites, Escargots, Poulet rôti", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719395-Reviews-Bouillon_Chartier-Paris_Ile_de_France.html" },
+            { name: "Clamato", description: "Ristorante di pesce fresco e frutti di mare, con un'atmosfera informale e moderna. Nessuna prenotazione possibile.", dishes: "Ostriche, Ceviche, Piatti di pesce crudo e cotto", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d6526154-Reviews-Clamato-Paris_Ile_de_France.html" },
+            { name: "Big Mamma (vari locali)", description: "Catena di ristoranti italiani molto popolari, noti per le porzioni abbondanti, l'arredamento kitsch e l'atmosfera vivace.", dishes: "Pizze napoletane, Paste fresche, Tiramisù", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d10006962-Reviews-Pink_Mamma-Paris_Ile_de_France.html" },
+            { name: "Le Relais de l'Entrecôte", description: "Famoso per il suo unico piatto: entrecôte con salsa segreta e patatine fritte a volontà. Nessun menu, solo il piatto del giorno.", dishes: "Entrecôte con salsa segreta e patatine fritte", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719396-Reviews-Le_Relais_de_l_Entrecote-Paris_Ile_de_France.html" },
+            { name: "Chez Janou", description: "Bistrot provenzale nel Marais, con un'atmosfera calda e accogliente. Famoso per la sua mousse al cioccolato servita a volontà.", dishes: "Cucina provenzale, Mousse au chocolat", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719397-Reviews-Chez_Janou-Paris_Ile_de_France.html" },
+            { name: "Bistrot Paul Bert", description: "Un classico bistrot parigino con piatti tradizionali francesi ben eseguiti e una buona selezione di vini.", dishes: "Steak frites, Ris de veau, Tarte Tatin", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719398-Reviews-Bistrot_Paul_Bert-Paris_Ile_de_France.html" },
+            { name: "Breizh Café", description: "Il miglior posto per gustare crêpes e galettes bretoni, sia dolci che salate, con ingredienti di alta qualità.", dishes: "Galettes complete, Crêpes al caramello salato", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719399-Reviews-Breizh_Cafe-Paris_Ile_de_France.html" },
+            { name: "Yam'Tcha", description: "Ristorante stellato Michelin che fonde la cucina francese con influenze cinesi, in particolare per gli abbinamenti tè-cibo.", dishes: "Menu degustazione con abbinamenti tè", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d1976077-Reviews-Yam_Tcha-Paris_Ile_de_France.html" },
+            { name: "Le Chateaubriand", description: "Ristorante di tendenza con cucina moderna e innovativa, noto per il suo menu fisso a sorpresa.", dishes: "Menu degustazione stagionale", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d1020619-Reviews-Le_Chateaubriand-Paris_Ile_de_France.html" },
+            { name: "Holybelly 5", description: "Famoso per le sue colazioni e brunch in stile australiano/americano. Spesso c'è fila, ma ne vale la pena.", dishes: "Pancakes, Uova strapazzate, Caffè speciali", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d12345678-Reviews-Holybelly_5-Paris_Ile_de_France.html" },
+            { name: "Le Dauphin", description: "Un bar à vins e ristorante con tapas e piatti piccoli, ideale per condividere e assaggiare diverse preparazioni.", dishes: "Tapas francesi e internazionali, Vini naturali", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d3369408-Reviews-Le_Dauphin-Paris_Ile_de_France.html" },
+            { name: "Pierre Gagnaire", description: "Ristorante 3 stelle Michelin, alta cucina francese innovativa e sperimentale. Un'esperienza culinaria di lusso.", dishes: "Menu degustazione complessi e creativi", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719400-Reviews-Pierre_Gagnaire-Paris_Ile_de_France.html" },
+            { name: "L'Arpège", description: "Ristorante 3 stelle Michelin famoso per la cucina vegetale di Alain Passard, con verdure dal suo orto.", dishes: "Menu 'Terra e Mare', piatti a base di verdure di stagione", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719401-Reviews-L_Arpege-Paris_Ile_de_France.html" },
+            { name: "Septime La Cave", description: "Enoteca e bar con piccoli piatti da condividere, gestito dal team di Septime. Ottima selezione di vini naturali.", dishes: "Formaggi, salumi, piatti vegetariani", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719402-Reviews-Septime_La_Cave-Paris_Ile_de_France.html" },
+            { name: "Ellsworth", description: "Ristorante informale con cucina americana moderna e piatti da condividere. Ottimo per brunch e cena.", dishes: "Pollo fritto, Ostriche, Verdure di stagione", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d8479017-Reviews-Ellsworth-Paris_Ile_de_France.html" },
+            { name: "Les Papilles", description: "Un bistrot-épicerie dove si mangia un menu fisso a sorpresa, con ingredienti freschi del mercato. Ottima atmosfera.", dishes: "Menu fisso che cambia ogni giorno", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719403-Reviews-Les_Papilles-Paris_Ile_de_France.html" },
+            { name: "Le Baratin", description: "Un bistrot autentico e senza fronzoli, amato dai parigini per la sua cucina casalinga e l'atmosfera vivace.", dishes: "Piatti tradizionali francesi, vino della casa", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719404-Reviews-Le_Baratin-Paris_Ile_de_France.html" },
+            { name: "Passerini", description: "Cucina italiana raffinata e autentica, con pasta fatta in casa e ingredienti di alta qualità. Ottimo servizio.", dishes: "Paste fresche, piatti di carne e pesce italiani", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d8641908-Reviews-Passerini-Paris_Ile_de_France.html" },
+            { name: "L'Avant Comptoir de la Mer", description: "Bar di tapas di mare, informale e sempre affollato. Ottimo per assaggiare piccoli piatti di pesce e frutti di mare.", dishes: "Tapas di mare, ostriche, gamberi", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d6526155-Reviews-L_Avant_Comptoir_de_la_Mer-Paris_Ile_de_France.html" },
+            { name: "Le Cinq", description: "Ristorante 3 stelle Michelin all'interno del Four Seasons Hotel George V. Lusso e alta cucina classica francese.", dishes: "Menu degustazione di alta cucina", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719405-Reviews-Le_Cinq-Paris_Ile_de_France.html" },
+            { name: "Arnaud Nicolas", description: "Miglior operaio di Francia, specializzato in paté en croûte e salumi. Ottimo per un pranzo veloce o per acquistare prodotti gourmet.", dishes: "Paté en croûte, terrine, salumi", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d12848149-Reviews-Arnaud_Nicolas-Paris_Ile_de_France.html" },
+            { name: "Le Bistrot Flaubert", description: "Bistrot moderno e accogliente con cucina francese contemporanea. Ottimo rapporto qualità-prezzo.", dishes: "Piatti di carne e pesce, dessert classici", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719406-Reviews-Le_Bistrot_Flaubert-Paris_Ile_de_France.html" },
+            { name: "Carbon", description: "Ristorante con cucina a base di fuoco, specializzato in carni e verdure cotte alla brace. Atmosfera rustica e moderna.", dishes: "Carni alla brace, verdure arrostite", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d1502445-Reviews-Carbon-Paris_Ile_de_France.html" },
+            { name: "Le Servan", description: "Bistrot moderno gestito da due sorelle, con cucina francese creativa e ingredienti di stagione. Ottima atmosfera.", dishes: "Piatti innovativi, dessert fatti in casa", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719407-Reviews-Le_Servan-Paris_Ile_de_France.html" },
+            { name: "L'Office", description: "Un piccolo e intimo ristorante con cucina francese moderna e un'ottima selezione di vini.", dishes: "Menu degustazione, piatti di carne e pesce", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719408-Reviews-L_Office-Paris_Ile_de_France.html" },
+            { name: "Chez L'Ami Jean", description: "Bistrot basco-francese famoso per la sua atmosfera rumorosa e vivace e le porzioni generose. Ottimo per la carne.", dishes: "Carni alla griglia, riso al latte", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719409-Reviews-Chez_L_Ami_Jean-Paris_Ile_de_France.html" },
+            { name: "Le Grand Véfour", description: "Ristorante storico e lussuoso, 2 stelle Michelin, con cucina classica francese in un ambiente sontuoso.", dishes: "Cucina classica francese, piatti raffinati", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719410-Reviews-Le_Grand_Vefour-Paris_Ile_de_France.html" },
+            { name: "Miznon", description: "Cucina israeliana informale e deliziosa, famosa per le sue pitas ripiene. Ottimo per un pasto veloce e saporito.", dishes: "Pita di cavolfiore, pita di agnello", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d6890356-Reviews-Miznon-Paris_Ile_de_France.html" },
+            { name: "Le Richer", description: "Un bistrot moderno e dinamico, con piatti creativi e un'atmosfera rilassata. Nessuna prenotazione.", dishes: "Piatti di stagione, vini naturali", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719411-Reviews-Le_Richer-Paris_Ile_de_France.html" },
+            { name: "Pink Mamma", description: "Parte del gruppo Big Mamma, famoso per la sua pasta al tartufo e l'arredamento instagrammabile.", dishes: "Pasta al tartufo, pizze, piatti italiani", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d10006962-Reviews-Pink_Mamma-Paris_Ile_de_France.html" },
+            { name: "Holybelly 19", description: "Seconda sede di Holybelly, offre colazioni e brunch con un menu leggermente diverso ma sempre delizioso.", dishes: "Pancakes, uova, piatti brunch", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d12345679-Reviews-Holybelly_19-Paris_Ile_de_France.html" },
+            { name: "Le 110 de Taillevent", description: "Ristorante con un'ampia selezione di vini e piatti abbinati a quattro tipi di vino. Cucina raffinata.", dishes: "Cucina francese classica e moderna", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719412-Reviews-Le_110_de_Taillevent-Paris_Ile_de_France.html" },
+            { name: "L'Ambroisie", description: "Ristorante 3 stelle Michelin, alta cucina francese classica in Place des Vosges. Un'esperienza gastronomica eccezionale.", dishes: "Piatti classici francesi, ingredienti di lusso", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719413-Reviews-L_Ambroisie-Paris_Ile_de_France.html" },
+            { name: "Candelaria", description: "Taqueria e bar nascosto con ottimi cocktail. Famoso per i suoi tacos autentici.", dishes: "Tacos, guacamole, cocktail", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d2008741-Reviews-Candelaria-Paris_Ile_de_France.html" },
+            { name: "Le Mary Celeste", description: "Bar di ostriche e cocktail con un'atmosfera vivace. Ottimo per aperitivi e piccoli piatti.", dishes: "Ostriche, piccoli piatti, cocktail", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d6526156-Reviews-Le_Mary_Celeste-Paris_Ile_de_France.html" },
+            { name: "Pizzeria Popolare", description: "Un'altra sede del gruppo Big Mamma, con pizze napoletane e un'atmosfera festosa. Prezzi molto accessibili.", dishes: "Pizze napoletane, pasta, tiramisù", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d12345680-Reviews-Pizzeria_Popolare-Paris_Ile_de_France.html" },
+            { name: "L'Ami Louis", description: "Un bistrot storico e molto costoso, famoso per la sua cucina tradizionale francese e l'atmosfera d'altri tempi.", dishes: "Pollo arrosto, patatine fritte, foie gras", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719414-Reviews-L_Ami_Louis-Paris_Ile_de_France.html" },
+            { name: "Au Pied de Cochon", description: "Ristorante aperto 24 ore su 24, famoso per i suoi piatti a base di maiale e la sua atmosfera vivace. Un classico di Les Halles.", dishes: "Pied de cochon, zuppa di cipolle", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719415-Reviews-Au_Pied_de_Cochon-Paris_Ile_de_France.html" },
+            { name: "Le Bouillon Julien", description: "Un altro 'bouillon' storico con interni Art Nouveau mozzafiato e piatti tradizionali a prezzi accessibili.", dishes: "Cucina francese classica, piatti del giorno", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719416-Reviews-Le_Bouillon_Julien-Paris_Ile_de_France.html" },
+            { name: "Fulgurances, L'Adresse", description: "Ristorante con chef residenti che cambiano ogni pochi mesi, offrendo una cucina sempre nuova e creativa.", dishes: "Menu degustazione a sorpresa", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719417-Reviews-Fulgurances_L_Adresse-Paris_Ile_de_France.html" },
+            { name: "La Bourse et La Vie", description: "Bistrot classico parigino con piatti tradizionali francesi di alta qualità. Ottimo per un'esperienza autentica.", dishes: "Steak frites, Blanquette de veau", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719418-Reviews-La_Bourse_et_La_Vie-Paris_Ile_de_France.html" },
+            { name: "Le 404", description: "Ristorante marocchino con un'atmosfera esotica e piatti saporiti. Ottimo per couscous e tajine.", dishes: "Couscous, tajine, pastilla", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719419-Reviews-Le_404-Paris_Ile_de_France.html" },
+            { name: "Daroco", description: "Pizzeria e ristorante italiano in un'ex sede di Jean Paul Gaultier, con un'atmosfera chic e vivace.", dishes: "Pizze, pasta, piatti italiani", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d12345681-Reviews-Daroco-Paris_Ile_de_France.html" },
+            { name: "Pink Flamingo", description: "Pizzeria con consegna a domicilio e posti a sedere informali, famosa per le sue pizze originali e gustose.", dishes: "Pizze creative, ingredienti freschi", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719420-Reviews-Pink_Flamingo-Paris_Ile_de_France.html" },
+            { name: "L'Éclair de Génie", description: "Pasticceria specializzata in éclair gourmet, con una vasta gamma di gusti e colori.", dishes: "Éclair dolci e salati", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719421-Reviews-L_Eclair_de_Genie-Paris_Ile_de_France.html" },
+            { name: "Du Pain et des Idées", description: "Panetteria artigianale famosa per il suo pane tradizionale e le 'escargots' (dolci a spirale).", dishes: "Pane, viennoiseries, escargots", tripadvisor: "https://www.tripadvisor.it/Restaurant_Review-g187147-d719422-Reviews-Du_Pain_et_des_Idees-Paris_Ile_de_France.html" }
+        ];
+        const attractions = [
+            { name: "Louvre", museumPass: true }, { name: "Musée d'Orsay", museumPass: true }, { name: "Musée de l'Orangerie", museumPass: true }, { name: "Sainte-Chapelle", museumPass: true }, { name: "Conciergerie", museumPass: true }, { name: "Museo Picasso", museumPass: true }, { name: "Centro Pompidou", museumPass: true }, { name: "Reggia di Versailles", museumPass: true }, { name: "Musée de l'Armée (Les Invalides)", museumPass: true }, { name: "Musée Rodin", museumPass: true }
+        ];
+        const missingMuseumsForPMPList = [
+            { name: "Chapelle Expiatoire", wiki: "https://it.wikipedia.org/wiki/Cappella_Espiatoria", official: "https://www.chapelle-expiatoire.fr/it" },
+            { name: "Cité de l'Architecture et du Patrimoine", wiki: "https://it.wikipedia.org/wiki/Citt%C3%A0_dell%27Architettura_e_del_Patrimonio", official: "https://www.citedelarchitecture.fr/fr" }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const stickyHeader = document.getElementById('stickyHeader');
+        const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+        const allDynamicSections = document.querySelectorAll('.dynamic-section');
+        const globalSearchBar = document.getElementById('globalSearchBar');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sideMenu = document.getElementById('sideMenu');
+        const closeMenuBtn = document.getElementById('closeMenuBtn');
+        const menuOverlay = document.getElementById('menuOverlay');
+        const menuContent = document.getElementById('menuContent');
+
+        // --- HELPER FUNCTIONS ---
+        const hideAllSections = () => {
+            allDynamicSections.forEach(section => section.style.display = 'none');
+        };
+
+        const showSection = (section) => {
+            hideAllSections();
+            section.style.display = 'block';
+            window.scrollTo({
+                top: section.offsetTop - (stickyHeader.offsetHeight + 20),
+                behavior: 'smooth'
+            });
+        };
+        
+        const openMenu = () => {
+            sideMenu.classList.add('menu-open');
+            menuOverlay.classList.add('visible');
+        };
+
+        const closeMenu = () => {
+            sideMenu.classList.remove('menu-open');
+            menuOverlay.classList.remove('visible');
+        };
+
+        // --- EVENT LISTENERS SETUP ---
+
+        // 1. Sticky Header & Scroll-to-Top
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                stickyHeader.classList.add('transparent');
+                scrollToTopBtn.style.display = 'block';
+            } else {
+                stickyHeader.classList.remove('transparent');
+                scrollToTopBtn.style.display = 'none';
+            }
+        });
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 2. Hamburger Menu Logic
+        hamburgerBtn.addEventListener('click', openMenu);
+        closeMenuBtn.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+
+        // 3. Main Action Buttons (inside menu)
+        menuContent.querySelectorAll('.main-action-button').forEach(button => {
+            button.addEventListener('click', () => {
+                closeMenu();
+                if (button.id === 'toggleSearchBtn') {
+                    globalSearchBar.style.display = globalSearchBar.style.display === 'none' ? 'block' : 'none';
+                    return;
+                }
+                const sectionId = button.id.replace('show', '').replace('Btn', 'Section');
+                const section = document.getElementById(sectionId.charAt(0).toLowerCase() + sectionId.slice(1));
+                if (section) {
+                    showSection(section);
+                    if (section.id === 'restaurantsSection') renderRestaurants();
+                    if (section.id === 'museumPassSection') renderMuseumPassSection();
+                }
+            });
+        });
+
+        // 4. Hide Buttons within sections
+        document.querySelectorAll('.main-action-button[id^="hide"]').forEach(button => {
+            button.addEventListener('click', () => {
+                button.closest('.dynamic-section').style.display = 'none';
+            });
+        });
+
+        // 5. Ticket Upload Functionality
+        document.querySelectorAll('.ticket-button').forEach(button => {
+            const activityId = button.dataset.activityId;
+            const fileInput = document.getElementById(`ticket-input-${activityId}`);
+            if (fileInput) {
+                button.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (event) => handleFileSelect(event, activityId));
+            }
+            updateTicketStatus(activityId);
+        });
+
+        function handleFileSelect(event, activityId) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const ticketData = { name: file.name, data: e.target.result };
+                localStorage.setItem(`ticket_${activityId}`, JSON.stringify(ticketData));
+                updateTicketStatus(activityId);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateTicketStatus(activityId) {
+            const statusDiv = document.getElementById(`ticket-status-${activityId}`);
+            if (!statusDiv) return;
+            const storedTicket = localStorage.getItem(`ticket_${activityId}`);
+
+            if (storedTicket) {
+                const ticketData = JSON.parse(storedTicket);
+                statusDiv.innerHTML = `<span><i>${ticketData.name}</i></span><span><a class="view-ticket" data-activity-id="${activityId}">Visualizza</a><a class="remove-ticket" data-activity-id="${activityId}">Rimuovi</a></span>`;
+                statusDiv.classList.add('visible');
+
+                statusDiv.querySelector('.view-ticket').addEventListener('click', () => {
+                    const ticket = JSON.parse(localStorage.getItem(`ticket_${activityId}`));
+                    if (ticket && ticket.data) {
+                        const newWindow = window.open();
+                        newWindow.document.write('<iframe src="' + ticket.data + '" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>');
+                    }
+                });
+                statusDiv.querySelector('.remove-ticket').addEventListener('click', () => {
+                    localStorage.removeItem(`ticket_${activityId}`);
+                    updateTicketStatus(activityId);
+                });
+            } else {
+                statusDiv.innerHTML = '';
+                statusDiv.classList.remove('visible');
+            }
+        }
+
+        // --- RENDER FUNCTIONS ---
+        const renderRestaurants = () => {
+            const list = document.getElementById('restaurantList');
+            list.innerHTML = restaurants.map(r => `<div class="restaurant-card"><p class="restaurant-name">${r.name}</p><p class="restaurant-description">${r.description}</p><p class="restaurant-dishes"><strong>Piatti consigliati:</strong> ${r.dishes}</p><a href="${r.tripadvisor}" target="_blank" class="restaurant-link">Vedi su TripAdvisor</a></div>`).join('');
+        };
+        
+        const renderMuseumPassSection = () => {
+            const itineraryList = document.getElementById('itineraryMuseumsPMPList');
+            const otherList = document.getElementById('otherMuseumsPMPList');
+            itineraryList.innerHTML = attractions.filter(a => a.museumPass).map(m => `<div class="museum-item"><p class="museum-name">${m.name}</p></div>`).join('');
+            otherList.innerHTML = missingMuseumsForPMPList.map(m => `<div class="museum-item"><p class="museum-name">${m.name}</p><div class="museum-details flex gap-2">${m.wiki ? `<a href="${m.wiki}" target="_blank" class="small-action-button">Wiki</a>` : ''}${m.official ? `<a href="${m.official}" target="_blank" class="small-action-button">Sito</a>` : ''}</div></div>`).join('');
+        };
+
+        // --- GLOBAL SEARCH ---
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.card').forEach(dayCard => {
+                let dayHasMatch = false;
+                dayCard.querySelectorAll('.activity-item').forEach(activity => {
+                    if (activity.textContent.toLowerCase().includes(searchTerm)) {
+                        activity.style.display = 'block';
+                        dayHasMatch = true;
+                    } else {
+                        activity.style.display = 'none';
+                    }
+                });
+                dayCard.style.display = dayHasMatch ? 'block' : 'none';
+            });
+        });
+    });
+    </script>
+</body>
+</html>
